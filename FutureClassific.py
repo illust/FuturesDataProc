@@ -1,96 +1,61 @@
 # -*- coding: utf-8 -*-
 """
-Spyder Editor
+Created on Tue Dec 26 15:35:05 2017
 
-This is a temporary script file.
+@author: svenwong
 """
-
 import pandas as pd
-from WindPy import w
-#from matplotlib import pyplot as plt
+# from WindPy import w
 
-# import numpy as np
-#df = pd.read_excel("C:\Users\wanghao03\Desktop\Temp.xlsx")
-#print df.tail(10)[['date','SettlePrice']]
+class FutureChange:
 
-#date2inx = {}
-#
-#for i in range(len(df)):
-#    date2inx[i] = df.iloc[i]['date']
+    labelFuture = {}  # labelFuture用于将索引与某合约自上市以来所有的交易日（首尾共计六天除外）构建键值对。
+    df = pd.DataFrame()
+    avg = 0
     
-#date = []
-#for dt in df[3:13]['date']:
-#    dt = str(dt)
-#    dt = int(dt[8:10])
-#    date.append(dt)
-    
-    
-
-
-
-
-#labelFuture = {}
-#for i in range(3,2127):
-#    charge = df.iloc[i-3]['SettlePrice'] - df.iloc[i+3]['SettlePrice']
-#    if abs(charge) < 87:
-#        labelFuture[i] = "fluc"
-#    elif charge < 0:
-#        labelFuture[i] = "rise"
-#    elif charge > 0:
-#        labelFuture[i] = "fall"
-#
-#i = 0
-#for item in labelFuture:
-#    if i < 100:
-#        print item,df.iloc[item]['date'],df.iloc[item]['SettlePrice'],labelFuture[item]
-#        i = i + 1
-#    
-#plt.title("Future trend")
-#plt.xlabel("date")
-#plt.ylabel("Settlement Price")
-#plt.plot(range(10),df.head(10)['SettlePrice'],"ro-")
-#plt.ylim((3550, 3700))
-#plt.show()
-
-# 计算差价列表平均数
-#print len(priceAbs)
-#print reduce(lambda x, y: x + y, priceAbs) / len(priceAbs)
-
-class FutureChange():
-    def __init__(self,src):
-        self._src = src
+    def __init__(self,df,cnt):
+       
+        self.df = df
+        self.cnt = cnt
         
-    def Dealdata(_src,src):
-        df = pd.read_excel(src)
-        df = df.drop(df.index[-2:])
-        date2inx = {}
-        labelFuture = {}
-        priceAbs = []
-        for i in range(len(df)):
-            date2inx[i] = df.iloc[i][u'日期']
-        for i in range(3,len(df)-3):
-            diff = df.iloc[i-3][u'结算价'] - df.iloc[i+3][u'结算价']
-            priceAbs.append(abs(diff))
-        avg = reduce(lambda x, y: x + y, priceAbs) / len(priceAbs)
-        print avg
-        for i in range(3,len(df)-3):
-            diff = df.iloc[i-3][u'结算价'] - df.iloc[i+3][u'结算价']
-            if abs(diff) < avg:
-                labelFuture[i] = "fluc"
-            elif diff < 0:
-                labelFuture[i] = "rise"
-            elif diff > 0:
-                labelFuture[i] = "fall"
-        i = 0
-        for item in labelFuture:
-            if i < 150:
-                print item,df.iloc[item][u'日期'],df.iloc[item][u'结算价'],labelFuture[item]
-                i = i +  1
-    
-    #def showRst():
+    def Dealdata(self):
+        
+        date2inx = {} # date2inx[]用于构建索引与日期键值对
+        priceAbs = [] # priceAbs用于存放某合约所有交易日周期内首尾交易日结算价差价(TSPD)
+        
+        for i in range(len(self.df)):
+            date2inx[i] = self.df.iloc[i][u'日期']
             
-#d = w.wsd("RB1801.SHF", "settle", "2000-01-01", "2017-12-25", "")
+        # 这里使用的基本策略是：判断某一交易日的涨跌情况，选择其结算价指标，并采用某交易日的前第三天与后第三天的TSPD作为涨跌分类指标，
+        # 计算TSPD的平均值是考虑到有些TSPD值较小，可以将交易日的涨跌情况归类为波动，平均值起到阈值的作用
+        for i in range(3,len(self.df)-3):
+            diff = self.df.iloc[i-3][u'结算价'] - self.df.iloc[i+3][u'结算价'] 
+            priceAbs.append(abs(diff))
+        
+        self.avg = reduce(lambda x, y: x + y, priceAbs) / len(priceAbs) # 计算差价均值
+        
+    # 给每个交易日的涨跌情况分类：上涨rise,下跌fall,波动fluc
+    def ChangeClassific(self):
+        for i in range(3,len(self.df)-3):
+            diff = self.df.iloc[i-3][u'结算价'] - self.df.iloc[i+3][u'结算价']
+            if abs(diff) < self.avg:
+                self.labelFuture[i] = "fluc"
+            elif diff < 0:
+                self.labelFuture[i] = "rise"
+            elif diff > 0:
+                self.labelFuture[i] = "fall"
+                                 
+    # 打印指定数量交易日涨跌信息
+    def PrintChg(self):
+        i = 0
+        for item in self.labelFuture:
+            if i < self.cnt:
+                print item,self.df.iloc[item][u'日期'],self.df.iloc[item][u'结算价'],self.labelFuture[item]
+                i = i + 1
+
     
-    
-c = FutureChange("C:\Users\wanghao03\Desktop\M1811-DCE.xlsx")   
-c.Dealdata("C:\Users\wanghao03\Desktop\M1811-DCE.xlsx")
+#if __name__ == '__main__':
+#    c = FutureChange("C:\Users\wanghao03\Desktop\M1811-DCE.xlsx",50)
+#    c.Dealdata()
+#    c.ChangeClassific()
+#    c.PrintChg()
