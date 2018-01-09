@@ -14,6 +14,7 @@ from matplotlib import pyplot as plt
 class Interaction:
 
     df = pd.DataFrame()
+
     def __init__(self,wd,count=10):
         self.wd_code = wd  # 商品交易合约代码
         self.count = count # 显示数目
@@ -73,39 +74,6 @@ class Interaction:
 def main():
     w.start()
     ia = Interaction("RB1801.SHF")
-    ia.format()
-    ia.plot()
-
-if __name__ == '__main__':
-    main()
-        # mulds = []
-        # for item in range(0,len(fc.df)):
-        #     mulds.append({fc.df.iloc[item][u'日期']:[fc.df.iloc[item][u'结算价'],fc.labelFuture[item]]})
-        lfe = []
-        for item in fc.labelFuture:
-            lfe.append(fc.labelFuture[item])
-        self.df[u'涨跌情况'] = lfe
-        print self.df
-        
-
-    def plot(self):
-        # date = []
-        settle = []
-        index = np.arange(0,len(self.df)/12)
-        print self.df
-        for i in np.arange(0,len(self.df)/12):
-            #fd = self.df.iloc[i][u'日期'].split('-')[1]+self.df.iloc[i][u'日期'].split('-')[1]
-            #date.append(fd)
-            settle.append(self.df.iloc[i][u'结算价'])
-        plt.plot(index,settle,'ro-',label='future change')
-        legend = plt.legend(loc='upper center',shadow=True, fontsize='x-large')
-        # Put a nicer background color on the legend.
-        legend.get_frame().set_facecolor('#00FFCC')
-        plt.show()
-
-def main():
-    w.start()
-    ia = interaction("RB1701.SHF")
     ia.format()
     ia.plot()
 
